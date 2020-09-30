@@ -20,6 +20,6 @@ class BaseModel(Model):
 
 class User(BaseModel):
 	user_id = CharField(unique=True, null=False)
-	user_answer = TextField(null=False)
-	question_id = IntegerField(null=False)
-	status = CharField()
+	user_answer = TextField(null=True)
+	question_id = IntegerField(null=True)
+	status = CharField(null=True)
