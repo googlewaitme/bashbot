@@ -5,6 +5,7 @@ def give_chain():
 	handlers = [
 		UserIsExistOnServerHandler(),
 		UserIsExistInDataBaseHandler(),
+		CheckUserStartHandler(),
 		CheckUserAnswerHandler(),
 		SendQuestionHandler(),
 		SendTheoryHandler(),

@@ -2,8 +2,11 @@ from abc import ABC, abstractmethod
 from server_api import ServerApi
 from models import User
 from constants import *
+from keyboard import BotKeyboard
 
+# Сделать так, чтобы если вопросов больше не осталось, то у пользователя было просто меню
 
+keyboard = BotKeyboard()
 api = ServerApi()
 
 
@@ -52,6 +55,20 @@ class UserIsExistInDataBaseHandler(AbstractHandler):
 		return bool(users)
 
 
+class CheckUserStartHandler(AbstractHandler):
+	def handle(self, request):
+		if request.text in BOT_START_TRIGGERS:
+			return self.make_data(request)
+		else:
+			return super().handle(request)
+	
+	def make_data(self, request):
+		message = dict()
+		message['message'] = FIRST_MESSAGE_FOR_NEW_USERS
+		message['keyboard'] = keyboard.menu()
+		return message
+
+
 class CheckUserAnswerHandler(AbstractHandler):
 	def handle(self, request):
 		print('check_user_answer')
@@ -80,11 +97,10 @@ class CheckUserAnswerHandler(AbstractHandler):
 		query.execute()
 
 	def make_data(self, data):
-		# TODO keyboards
-		# TODO send right answer
 		message = dict()
 		if data['user_answer_is_right']:
 			message['message'] = 'Ваш ответ правильный'
+			message['keyboard'] = keyboard.menu()
 			self.update_user_status()
 		else:
 			message['message'] = 'Ваш ответ не правильный, попробуйте еще раз'
@@ -125,9 +141,9 @@ class SendQuestionHandler(AbstractHandler):
 		query.execute()
 
 	def make_data(self, data):
-		# TODO keyboard
 		message = dict()
 		message['message'] = data['text']
+		message['keyboard'] = keyboard.question(data)
 		return message
 
 
@@ -154,7 +170,8 @@ class SendTheoryHandler(AbstractHandler):
 
 	def make_data(self, data):
 		message = {
-			'message': f"{data['theme']}\n\n{data['text']}"
+			'message': f"{data['theme']}\n\n{data['text']}",
+			'keyboard': keyboard.menu()
 		}
 		return message
 
@@ -167,8 +184,7 @@ class RemoveUserHandler(AbstractHandler):
 				method_name='remove_user',
 				user_id=request.user_id
 			)
-			# TODO ME
-			return {'message': 'Ваш аккаунт удален'}
+			return {'message': 'Ваш аккаунт удален', 'keyboard': keyboard.return_key()}
 		else:
 			return super().handle(request)
 
@@ -176,4 +192,4 @@ class RemoveUserHandler(AbstractHandler):
 class CommandIsNotFound(AbstractHandler):
 	def handle(self, request):
 		print('is_not_found')
-		return {'message': 'i dont understand you! PLEASE RUSSIAN PLEASE'}
+		return {'message': 'Я вас не понял', 'keyboard': keyboard.menu()}
