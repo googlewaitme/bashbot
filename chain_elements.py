@@ -114,6 +114,7 @@ class SendQuestionHandler(AbstractHandler):
 			return super().handle(request)
 		
 		data = self.new_question(request)
+		print(data)
 		if data['id'] == -1:
 			return self.user_have_passed_all_questions()
 
@@ -129,7 +130,10 @@ class SendQuestionHandler(AbstractHandler):
 		return data
 
 	def user_have_passed_all_questions(self):
-		message = {'message': 'Вопросов больше нет! Изучите новую тему, нажав на нужную кнопку'}
+		message = {
+			'message': 'Вопросов больше нет! Изучите новую тему, нажав на нужную кнопку',
+			'keyboard': keyboard.menu()	
+		}
 		return message
 
 	def save_question_id_in_user(self, request, question_id):
